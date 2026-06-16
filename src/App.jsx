@@ -1,7 +1,29 @@
 import { useState, useEffect } from "react";
 import "./index.css";
 
+const KEY = 'd7db305eef974299bdb185129261506';  // apiKey from weatherapi.com
+
 function App() {
+
+  const [weatherData,setWeaterData] = useState(null);
+  const [city,setCity] = useState('');
+
+  useEffect(() => {
+    async function getData() {
+      const res = await fetch(
+        'http://api.weatherapi.com/v1/current.json?key=d7db305eef974299bdb185129261506&q=Montevideo'
+      );
+      const data = await res.json();
+      
+      setWeaterData(data);
+      setCity(data.location.name);
+    };
+    getData();
+  }, []
+  );
+
+console.log(weatherData);
+
   return (
     <div className="app">
       <div className="widget-container">
@@ -12,7 +34,8 @@ function App() {
           </div>
         </div>
         <div className="weather-card">
-          <h2>Moscow, Russia</h2>
+          <h2>{city}</h2>
+          {/* <h2>Moscow, Russia</h2> */}
           <img src="" alt="icon" className="weather-icon" />
           <p className="temperature">11°C</p>
           <p className="condition">rainy</p>
