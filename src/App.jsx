@@ -6,18 +6,30 @@ const KEY = 'd7db305eef974299bdb185129261506';  // apiKey from weatherapi.com
 function App() {
 
   const [weatherData,setWeaterData] = useState(null);
-  const [city,setCity] = useState('');
+  const [city,setCity] = useState('Punta Del Este');
+  const [error,setError] = useState(null);
 
   useEffect(() => {
-    async function getData() {
-      const res = await fetch(
-        'http://api.weatherapi.com/v1/current.json?key=d7db305eef974299bdb185129261506&q=Montevideo'
-      );
-      const data = await res.json();
-      
-      setWeaterData(data);
-      setCity(data.location.name);
-    };
+      async function getData() {
+        try {
+        const res = await fetch(
+          `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${city}`
+        );
+
+        if(!res.ok) {
+          throw new Error(`${res.status} ${res.status.text}`);
+        }
+
+        const data = await res.json();
+        
+        setWeaterData(data);
+        // setCity(data?.location.name);
+        } catch (err) {
+          console.log(err);
+          // setError('Not valid city name');
+          setError(err.message);
+        }
+      };
     getData();
   }, []
   );
@@ -34,8 +46,10 @@ console.log(weatherData);
           </div>
         </div>
         <div className="weather-card">
-          <h2>{city}</h2>
-          {/* <h2>Moscow, Russia</h2> */}
+          {/* {error ? <h2>Bad request/response</h2>  */}
+          {error ? <h2>{error}</h2> 
+          : <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2>}
+          {/* <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2> */}
           <img src="" alt="icon" className="weather-icon" />
           <p className="temperature">11°C</p>
           <p className="condition">rainy</p>
