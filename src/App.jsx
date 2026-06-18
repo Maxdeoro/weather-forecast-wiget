@@ -16,25 +16,21 @@ function App() {
           `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${city}`
         );
 
-        if(!res.ok) {
-          throw new Error(`${res.status} ${res.status.text}`);
-        }
-
         const data = await res.json();
-        
+
+        if(data.error) {
+          console.log('ERROR');
+          setError(data.error.message);
+        }
         setWeaterData(data);
-        // setCity(data?.location.name);
         } catch (err) {
-          console.log(err);
-          // setError('Not valid city name');
           setError(err.message);
+          setWeaterData(null);
         }
       };
     getData();
   }, []
   );
-
-console.log(weatherData);
 
   return (
     <div className="app">
@@ -46,10 +42,8 @@ console.log(weatherData);
           </div>
         </div>
         <div className="weather-card">
-          {/* {error ? <h2>Bad request/response</h2>  */}
           {error ? <h2>{error}</h2> 
           : <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2>}
-          {/* <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2> */}
           <img src="" alt="icon" className="weather-icon" />
           <p className="temperature">11°C</p>
           <p className="condition">rainy</p>
