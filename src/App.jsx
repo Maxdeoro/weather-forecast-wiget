@@ -6,7 +6,7 @@ const KEY = 'd7db305eef974299bdb185129261506';  // apiKey from weatherapi.com
 function App() {
 
   const [weatherData,setWeaterData] = useState(null);
-  const [city,setCity] = useState('Punta Del Este');
+  const [city,setCity] = useState('');
   const [error,setError] = useState(null);
 
   useEffect(() => {
@@ -23,13 +23,14 @@ function App() {
           setError(data.error.message);
         }
         setWeaterData(data);
+        setError(null);
         } catch (err) {
           setError(err.message);
           setWeaterData(null);
         }
       };
     getData();
-  }, []
+  }, [city]
   );
 
   console.log(weatherData);
@@ -40,7 +41,11 @@ function App() {
         <div className="weather-card-container">
           <h1 className="app-title">Weather Widget</h1>
           <div className="search-container">
-            <input type="text" placeholder="Enter city name" className="search-input" />
+            <input type="text" placeholder="Enter city name" 
+                   className="search-input" 
+                   value={city}
+                   onChange={(e) => setCity(e.target.value)}
+            />
           </div>
         </div>
         <div className="weather-card">
