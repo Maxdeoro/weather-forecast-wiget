@@ -8,25 +8,29 @@ function App() {
   const [weatherData,setWeaterData] = useState(null);
   const [city,setCity] = useState('');
   const [error,setError] = useState(null);
+  const [loading,setLoading] = useState(false);
 
   useEffect(() => {
       async function getData() {
+        setLoading(true);
         try {
         const res = await fetch(
           `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${city}`
         );
+
+        if(!res.ok) {
+          throw new Error(`Error: ${res.status}, ${res.status.text}`);
+        }
         
         const data = await res.json();
 
-        if(data.error) {
-          console.log('ERROR');
-          setError(data.error.message);
-        }
         setWeaterData(data);
         setError(null);
         } catch (err) {
           setError(err.message);
           setWeaterData(null);
+        } finally {
+          setLoading(false);
         }
       };
     getData();
@@ -34,6 +38,30 @@ function App() {
   );
 
   console.log(weatherData);
+
+  function renderError(){
+    return <p>{error}</p>;
+  };
+
+  function renderLoading(){
+    return <p>Loading...</p>;
+  };
+
+  function renderWeather() {
+    return (
+      <div className="weather-card">
+          {/* {error ? <h2>{error}</h2> : */}
+          <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2>
+          <img src={`https:${'//cdn.weatherapi.com/weather/64x64/day/116.png'}`} alt="icon" className="weather-icon" />
+          <p className="temperature">{Math.round(`${weatherData?.current?.temp_c}`)}°C</p>
+          <p className="condition">{`${weatherData?.current?.condition?.text}`}</p>
+          <div className="weather-details">
+            <p>Humidity: {`${weatherData?.current?.humidity}%`}</p>
+            <p>Wind: {`${weatherData?.current?.wind_kph}`} km/h</p>
+          </div>
+      </div>
+    )
+  };
 
   return (
     <div className="app">
@@ -48,17 +76,12 @@ function App() {
             />
           </div>
         </div>
-        <div className="weather-card">
-          {error ? <h2>{error}</h2> 
-          : <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2>}
-          <img src={`https:${'//cdn.weatherapi.com/weather/64x64/day/116.png'}`} alt="icon" className="weather-icon" />
-          <p className="temperature">{Math.round(`${weatherData?.current?.temp_c}`)}°C</p>
-          <p className="condition">{`${weatherData?.current?.condition?.text}`}</p>
-          <div className="weather-details">
-            <p>Humidity: {`${weatherData?.current?.humidity}%`}</p>
-            <p>Wind: {`${weatherData?.current?.wind_kph}`} km/h</p>
-          </div>
-        </div>
+        {/* {loading ? renderLoading() : error ? renderError() : weatherData 
+          && renderWeather()
+        } */}
+        {error && renderError()}
+        {loading && renderLoading()}
+        {!loading && !error && weatherData && renderWeather()}
       </div>
     </div>
   );
