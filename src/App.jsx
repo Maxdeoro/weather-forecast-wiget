@@ -9,10 +9,26 @@ function App() {
   const [city,setCity] = useState('');
   const [error,setError] = useState(null);
   const [loading,setLoading] = useState(false);
+  const [coords,setCoords] = useState(null);
+
+  useEffect(() => {
+    if(!navigator.geolocation) {
+      setError('Sorry, your browser does not support geolocation.');
+      return;
+    }
+    navigator.geolocation.getCurrentPosition((position) => {
+      console.log(position);
+      const [latitude, longitude] = position.coords;
+      setCoords({latitude, longitude});
+    }, (err) => {
+        console.log('Geolocation error', err.message);
+        setError('Geolocation is denied on the device.');
+      });
+  }, []);
 
   useEffect(() => {
 
-    if(!city.trim()) {
+    if(!city.trim() && !coords) {
       setWeaterData(null);
       setError(null);
       return;
@@ -21,8 +37,10 @@ function App() {
       async function getData() {
         setLoading(true);
         try {
+        const query = city.trim() ? city : `${coords.latitude},${coords.longitude}`;
+
         const res = await fetch(
-          `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${city}`
+          `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${query}`
         );
 
         if(!res.ok) {
@@ -41,7 +59,7 @@ function App() {
         }
       };
     getData();
-  }, [city]
+  }, [city, coords]
   );
 
   console.log(weatherData);
