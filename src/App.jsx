@@ -11,6 +11,13 @@ function App() {
   const [loading,setLoading] = useState(false);
 
   useEffect(() => {
+
+    if(!city.trim()) {
+      setWeaterData(null);
+      setError(null);
+      return;
+    }
+
       async function getData() {
         setLoading(true);
         try {
@@ -50,7 +57,6 @@ function App() {
   function renderWeather() {
     return (
       <div className="weather-card">
-          {/* {error ? <h2>{error}</h2> : */}
           <h2>{`${weatherData?.location?.name}, ${weatherData?.location?.country}`}</h2>
           <img src={`https:${'//cdn.weatherapi.com/weather/64x64/day/116.png'}`} alt="icon" className="weather-icon" />
           <p className="temperature">{Math.round(`${weatherData?.current?.temp_c}`)}°C</p>
@@ -76,9 +82,6 @@ function App() {
             />
           </div>
         </div>
-        {/* {loading ? renderLoading() : error ? renderError() : weatherData 
-          && renderWeather()
-        } */}
         {error && renderError()}
         {loading && renderLoading()}
         {!loading && !error && weatherData && renderWeather()}
