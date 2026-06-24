@@ -28,6 +28,10 @@ function App() {
 
   useEffect(() => {
 
+    const controller = new AbortController();
+    const signal = controller.signal;
+    console.log(signal);
+
     if(!city.trim() && !coords) {
       setWeaterData(null);
       setError(null);
@@ -40,7 +44,7 @@ function App() {
         const query = city.trim() ? city : `${coords.latitude},${coords.longitude}`;
 
         const res = await fetch(
-          `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${query}`
+          `http://api.weatherapi.com/v1/current.json?key=${KEY}&q=${query},{signal,}`
         );
 
         if(!res.ok) {
@@ -59,6 +63,7 @@ function App() {
         }
       };
     getData();
+    return () => {controller.abort()};
   }, [city, coords]
   );
 
